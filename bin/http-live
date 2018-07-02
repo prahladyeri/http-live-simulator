@@ -1,0 +1,93 @@
+#! /usr/bin/env node
+/**
+ * HTTP Live Simulator
+ * 
+ * @author Prahlad Yeri<prahladyeri@yahoo.com>
+ * @description Simulate HTTP Delays on your local machine.
+ * @license MIT
+ * */
+var http = require('http');
+var url = require('url');
+var fs  = require('fs');
+
+var defaults = ["index.html", 'index.htm', 'index.php'];
+var mimeTypes = {
+	".html": "text/html",
+	".htm": "text/html",
+	".js": "application/javascript",
+	".es": "application/ecmascript",
+	".pdf": "application/pdf",
+	".ico": "image/x-icon",
+	".gif": "image/gif",
+	".jpeg": "image/jpeg",
+	".jpg": "image/jpeg",
+	".png": "image/png",
+	".svg": "image/svg+xml",
+	".bmp": "image/bmp",
+	".css": "text/css",
+	".txt": "text/plain",
+};
+
+
+http.createServer(function (req, res) {
+	var pathname = url.parse(req.url, true).pathname;
+	var abspath = '';
+	var delay = 200 + Math.floor(Math.random() * 500);
+	sleep(delay)
+	.then(function(e){
+		if (pathname == "/") {
+			for(var i=0;i<defaults.length;i++) {
+				if (fs.existsSync(process.cwd() + '/' + defaults[i])) {
+					pathname = '/' + defaults[i];
+					break;
+				}
+			}
+			if (pathname == '/') {
+				return404(res, pathname);
+				return;
+			}
+		}
+		
+		abspath = process.cwd() + pathname;
+		console.log('REQUEST: ', req.method, pathname);
+
+		if (fs.existsSync(abspath)) {
+			fs.readFile(abspath, function(err, data) {
+				var ext = pathname.slice(pathname.indexOf("."));
+				var mtype = getMimeType(ext);
+				res.writeHead(200, {'Content-Type': mtype});
+				res.write(data);
+				res.end();
+			});
+		}
+		else {
+			return404(res, pathname);
+			return;
+		}
+	});
+}).listen(8080); 
+console.log("Listening on port 8080\nCurrent Directory: ", process.cwd());
+
+function return404(res, pathname) {
+	console.log("File not found: ", pathname);
+	res.writeHead(404);
+	res.write("<pre>Not Found: " + pathname + "</pre>");
+	res.end();
+}
+
+function sleep(mill) {
+	return new Promise(function(resolve){
+		setTimeout(function(){
+			resolve();
+		}, mill);
+	});
+}
+
+function getMimeType(ext) {
+	if (mimeTypes.hasOwnProperty(ext)) {
+		return mimeTypes[ext];
+	}
+	else {
+		return "application/octet-stream";
+	}
+}

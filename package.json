@@ -1,0 +1,26 @@
+{
+  "name": "http-live-simulator",
+  "version": "1.0.0",
+  "description": "HTTP Server that serves with random delay for live simulations",
+  "main": "index.js",
+  "bin": {
+    "http-live": "bin/http-live"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prahladyeri/http-live-simulator.git"
+  },
+  "keywords": [
+    "http",
+    "server"
+  ],
+  "author": "Prahlad Yeri",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/prahladyeri/http-live-simulator/issues"
+  },
+  "homepage": "https://github.com/prahladyeri/http-live-simulator#readme"
+}
