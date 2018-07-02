@@ -1,6 +1,6 @@
 {
   "name": "http-live-simulator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HTTP Server that serves with random delay for live simulations",
   "main": "index.js",
   "bin": {
