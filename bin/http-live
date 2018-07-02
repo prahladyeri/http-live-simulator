@@ -26,6 +26,7 @@ var mimeTypes = {
 	".bmp": "image/bmp",
 	".css": "text/css",
 	".txt": "text/plain",
+	".md": "text/plain",
 };
 
 
