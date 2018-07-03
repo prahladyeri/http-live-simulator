@@ -10,8 +10,22 @@
 
 ```
 $ http-live
-Listening on port 8080
-Current Directory:  /path/to/current/folder
+Serving Directory: /your/current/path
+Port 8080
+Delay: 200-500ms
+```
+
+You can change the behaviour of http live server with following optional arguments:
+
+```
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  -v, --version         Show program's version number and exit.
+  -p PORT, --port PORT  Port number for running the server
+  -m MIN_DELAY, --min-delay MIN_DELAY
+                        Minimum Delay
+  -x MAX_DELAY, --max-delay MAX_DELAY
+                        Maximum Delay
 ```
 
 ## Uninstallation:

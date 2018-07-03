@@ -10,6 +10,11 @@ var http = require('http');
 var url = require('url');
 var fs  = require('fs');
 
+var config = {
+	port: 8080,
+	minDelay: 200,
+	maxDelay: 500
+}
 var defaults = ["index.html", 'index.htm', 'index.php'];
 var mimeTypes = {
 	".html": "text/html",
@@ -29,11 +34,43 @@ var mimeTypes = {
 	".md": "text/plain",
 };
 
+//arguments
+var pjson = require('../package.json');
+var ArgumentParser = require('argparse').ArgumentParser;
+var parser = new ArgumentParser({
+  version: pjson.version,
+  addHelp:true,
+  description: 'Simulate HTTP Delays on your local machine'
+});
+parser.addArgument(
+  [ '-p', '--port' ], {help: "Port number for running the server"}
+);
+parser.addArgument(
+  [ '-m', '--min-delay' ], {help: "Minimum Delay"}
+);
+parser.addArgument(
+  [ '-x', '--max-delay' ], {help: "Maximum Delay"}
+);
+var args = parser.parseArgs();
+if (args.port != null) {
+	config.port = Number(args.port) || config.port;
+}
+if (args.min_delay != null) {
+	config.min_delay = Number(args.min_delay) || 0;
+}
+if (args.max_delay != null) {
+	config.max_delay = Number(args.max_delay) || 0;
+}
+
+if (config.minDelay > config.maxDelay) {
+	console.log("Minimum delay cannot be greater than maximum delay.");
+	return;
+}
 
 http.createServer(function (req, res) {
 	var pathname = url.parse(req.url, true).pathname;
 	var abspath = '';
-	var delay = 200 + Math.floor(Math.random() * 500);
+	var delay = config.minDelay + Math.floor(Math.random() * (config.maxDelay-config.minDelay));
 	sleep(delay)
 	.then(function(e){
 		if (pathname == "/") {
@@ -66,8 +103,11 @@ http.createServer(function (req, res) {
 			return;
 		}
 	});
-}).listen(8080); 
-console.log("Listening on port 8080\nCurrent Directory: ", process.cwd());
+}).listen(config.port); 
+var ss = "Serving Directory: " + process.cwd() +
+"\nPort " + config.port
++ "\nDelay: " + config.minDelay + "-" + config.maxDelay + "ms";
+console.log(ss);
 
 function return404(res, pathname) {
 	console.log("File not found: ", pathname);

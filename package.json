@@ -1,6 +1,6 @@
 {
   "name": "http-live-simulator",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "HTTP Server that serves with random delay for live simulations",
   "main": "index.js",
   "bin": {
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/prahladyeri/http-live-simulator/issues"
   },
-  "homepage": "https://github.com/prahladyeri/http-live-simulator#readme"
+  "homepage": "https://github.com/prahladyeri/http-live-simulator#readme",
+  "dependencies": {
+    "argparse": "^1.0.10"
+  }
 }
