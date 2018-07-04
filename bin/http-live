@@ -46,20 +46,20 @@ parser.addArgument(
   [ '-p', '--port' ], {help: "Port number for running the server"}
 );
 parser.addArgument(
-  [ '-m', '--min-delay' ], {help: "Minimum Delay"}
+  [ '-m', '--min-delay' ], {help: "Minimum delay in milliseconds"}
 );
 parser.addArgument(
-  [ '-x', '--max-delay' ], {help: "Maximum Delay"}
+  [ '-x', '--max-delay' ], {help: "Maximum delay in milliseconds"}
 );
 var args = parser.parseArgs();
 if (args.port != null) {
 	config.port = Number(args.port) || config.port;
 }
 if (args.min_delay != null) {
-	config.min_delay = Number(args.min_delay) || 0;
+	config.minDelay = Number(args.min_delay) || 0;
 }
 if (args.max_delay != null) {
-	config.max_delay = Number(args.max_delay) || 0;
+	config.maxDelay = Number(args.max_delay) || 0;
 }
 
 if (config.minDelay > config.maxDelay) {

@@ -23,9 +23,9 @@ Optional arguments:
   -v, --version         Show program's version number and exit.
   -p PORT, --port PORT  Port number for running the server
   -m MIN_DELAY, --min-delay MIN_DELAY
-                        Minimum Delay
+                        Minimum delay in milliseconds
   -x MAX_DELAY, --max-delay MAX_DELAY
-                        Maximum Delay
+                        Maximum delay in milliseconds
 ```
 
 ## Uninstallation:
