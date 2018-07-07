@@ -1,134 +1,68 @@
 #! /usr/bin/env node
 /**
  * HTTP Live Simulator
- * 
+ *
  * @author Prahlad Yeri<prahladyeri@yahoo.com>
  * @description Simulate HTTP Delays on your local machine.
  * @license MIT
  * */
-var http = require('http');
-var url = require('url');
-var fs  = require('fs');
 
-var config = {
-	port: 8080,
-	minDelay: 200,
-	maxDelay: 500
+const http = require('http');
+const url = require('url');
+const fs  = require('fs');
+const path = require('path');
+const signale = require('signale');
+const { entryFiles, defaultOptions } = require('../lib/config');
+const util = require('../lib/util');
+const cliOptions = require('../lib/cli');
+const options = Object.assign({}, defaultOptions, cliOptions);
+
+if (options.minDelay > options.maxDelay) {
+  signale.error("Minimum delay cannot be greater than maximum delay.");
+  console.error(options);
+  return;
 }
-var defaults = ["index.html", 'index.htm', 'index.php'];
-var mimeTypes = {
-	".html": "text/html",
-	".htm": "text/html",
-	".js": "application/javascript",
-	".es": "application/ecmascript",
-	".pdf": "application/pdf",
-	".ico": "image/x-icon",
-	".gif": "image/gif",
-	".jpeg": "image/jpeg",
-	".jpg": "image/jpeg",
-	".png": "image/png",
-	".svg": "image/svg+xml",
-	".bmp": "image/bmp",
-	".css": "text/css",
-	".txt": "text/plain",
-	".md": "text/plain",
-};
 
-//arguments
-var pjson = require('../package.json');
-var ArgumentParser = require('argparse').ArgumentParser;
-var parser = new ArgumentParser({
-  version: pjson.version,
-  addHelp:true,
-  description: 'Simulate HTTP Delays on your local machine'
+const server = http.createServer((req, res) => {
+  let pathname = url.parse(req.url, true).pathname;
+  let absPath = '';
+  const delay = util.getRandomDelay(options.minDelay, options.maxDelay);
+
+  util.sleep(delay)
+    .then(() => {
+      if (pathname === '/') {
+        for (let i = 0; i < entryFiles.length; i++) {
+          if (fs.existsSync(path.join(process.cwd(), entryFiles[i]))) {
+            pathname += entryFiles[i];
+            break;
+          }
+        }
+
+        if (pathname === '/') return util.return404(res, pathname);
+      }
+
+      signale.log(`REQUEST: ⏳ Delay - ${delay}ms ${req.method} ${pathname}`);
+
+      absPath = path.join(process.cwd(), pathname);
+      const ext = pathname.slice(pathname.indexOf('.'));
+      const fileStream = fs.createReadStream(absPath, { encoding: 'utf-8' });
+
+      res.writeHead(200, { 'Content-Type': util.getMimeType(ext) });
+      fileStream.pipe(res);
+      fileStream.on('error', err => {
+        // file not found
+        if (err.code === 'ENOENT') return util.return404(res, pathname);
+
+        // otherwise send the error back
+        res.writeHead(500);
+        res.end(JSON.stringify(err));
+      });
+    });
 });
-parser.addArgument(
-  [ '-p', '--port' ], {help: "Port number for running the server"}
-);
-parser.addArgument(
-  [ '-m', '--min-delay' ], {help: "Minimum delay in milliseconds"}
-);
-parser.addArgument(
-  [ '-x', '--max-delay' ], {help: "Maximum delay in milliseconds"}
-);
-var args = parser.parseArgs();
-if (args.port != null) {
-	config.port = Number(args.port) || config.port;
-}
-if (args.min_delay != null) {
-	config.minDelay = Number(args.min_delay) || 0;
-}
-if (args.max_delay != null) {
-	config.maxDelay = Number(args.max_delay) || 0;
-}
 
-if (config.minDelay > config.maxDelay) {
-	console.log("Minimum delay cannot be greater than maximum delay.");
-	return;
-}
+server.listen(options.port, err => {
+  if (err) throw Error(err);
 
-http.createServer(function (req, res) {
-	var pathname = url.parse(req.url, true).pathname;
-	var abspath = '';
-	var delay = config.minDelay + Math.floor(Math.random() * (config.maxDelay-config.minDelay));
-	sleep(delay)
-	.then(function(e){
-		if (pathname == "/") {
-			for(var i=0;i<defaults.length;i++) {
-				if (fs.existsSync(process.cwd() + '/' + defaults[i])) {
-					pathname = '/' + defaults[i];
-					break;
-				}
-			}
-			if (pathname == '/') {
-				return404(res, pathname);
-				return;
-			}
-		}
-		
-		abspath = process.cwd() + pathname;
-		console.log('REQUEST: ', req.method, pathname);
-
-		if (fs.existsSync(abspath)) {
-			fs.readFile(abspath, function(err, data) {
-				var ext = pathname.slice(pathname.indexOf("."));
-				var mtype = getMimeType(ext);
-				res.writeHead(200, {'Content-Type': mtype});
-				res.write(data);
-				res.end();
-			});
-		}
-		else {
-			return404(res, pathname);
-			return;
-		}
-	});
-}).listen(config.port); 
-var ss = "Serving Directory: " + process.cwd() +
-"\nPort " + config.port
-+ "\nDelay: " + config.minDelay + "-" + config.maxDelay + "ms";
-console.log(ss);
-
-function return404(res, pathname) {
-	console.log("File not found: ", pathname);
-	res.writeHead(404);
-	res.write("<pre>Not Found: " + pathname + "</pre>");
-	res.end();
-}
-
-function sleep(mill) {
-	return new Promise(function(resolve){
-		setTimeout(function(){
-			resolve();
-		}, mill);
-	});
-}
-
-function getMimeType(ext) {
-	if (mimeTypes.hasOwnProperty(ext)) {
-		return mimeTypes[ext];
-	}
-	else {
-		return "application/octet-stream";
-	}
-}
+  signale.start(`Serving Directory: ${process.cwd()}`);
+  signale.watch(`Port: ${options.port}`);
+});
