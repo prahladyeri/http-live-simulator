@@ -10,9 +10,8 @@
 
 ```
 $ http-live
-Serving Directory: /your/current/path
-Port 8080
-Delay: 200-500ms
+start    Serving Directory: /your/current/path
+watching Port: 8080
 ```
 
 You can change the behaviour of http live server with following optional arguments:
@@ -31,3 +30,13 @@ Optional arguments:
 ## Uninstallation:
 
 `npm uninstall -g http-live-simulator`
+
+## Development
+```
+git clone git@github.com:prahladyeri/http-live-simulator.git
+cd http-live-simulator/
+npm install -g
+npm link
+```
+
+`npm install -g` Will links the script to a location on our path, so we can use it like any other shell command.
