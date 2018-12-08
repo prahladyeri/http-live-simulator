@@ -69,7 +69,9 @@ if (config.minDelay > config.maxDelay) {
 
 http.createServer(function (req, res) {
 	var pathname = url.parse(req.url, true).pathname;
-	pathname = pathname.replace("/../",""); //fix for path traversal bug
+	while(pathname.indexOf("/../") != -1) {
+		pathname = pathname.replace("/../",""); //fix for path traversal bug
+	}
 	var abspath = '';
 	var delay = config.minDelay + Math.floor(Math.random() * (config.maxDelay-config.minDelay));
 	sleep(delay)
