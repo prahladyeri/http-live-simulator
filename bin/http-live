@@ -76,6 +76,9 @@ http.createServer(function (req, res) {
 	var delay = config.minDelay + Math.floor(Math.random() * (config.maxDelay-config.minDelay));
 	sleep(delay)
 	.then(function(e){
+		if (pathname == "") {
+			pathname = '/';
+		}
 		if (pathname == "/") {
 			for(var i=0;i<defaults.length;i++) {
 				if (fs.existsSync(process.cwd() + '/' + defaults[i])) {
