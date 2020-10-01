@@ -95,7 +95,7 @@ http.createServer(function (req, res) {
 		abspath = process.cwd() + pathname;
 		console.log('REQUEST: ', req.method, pathname);
 
-		if (fs.existsSync(abspath)) {
+		if (fs.existsSync(abspath) && !fs.lstatSync(abspath).isDirectory() ) {
 			fs.readFile(abspath, function(err, data) {
 				var ext = pathname.slice(pathname.indexOf("."));
 				var mtype = getMimeType(ext);
